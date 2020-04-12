@@ -15,7 +15,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/Bin)
 
 # Установка линковки для QT библиотеки
 # Линковку необходимо установить глобально, в противном случае у CMake будет какая-то хуйбалистика с путями (CMAKE_PREFIX_PATH)
-set(QT_STATIC_LINK OFF)
+set(QT_STATIC_LINK ON)
 
 # П Р О С Т Е Й Ш И Й  П Р И М Е Р
 
@@ -32,3 +32,6 @@ add_subdirectory("Sources/ChatServerMT")
 
 # Клиент
 add_subdirectory("Sources/ChatClient")
+
+# Клиент
+add_subdirectory("Sources/ChatClientGUI")

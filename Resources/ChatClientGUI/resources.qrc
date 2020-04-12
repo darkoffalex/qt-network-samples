@@ -1,0 +1,8 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+    <qresource>
+        <file>fonts/ProximaNova-Regular.otf</file>
+        <file>fonts/ProximaNova-Semibold.ttf</file>
+        <file>icons/icon.png</file>
+    </qresource>
+</RCC>
