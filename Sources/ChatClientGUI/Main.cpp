@@ -1,5 +1,6 @@
 #include "ConnectionWindow.h"
 
+#include <windows.h>
 #include <QtPlugin>
 #include <QApplication>
 #include <QFontDatabase>
@@ -11,11 +12,13 @@ QTcpSocket* _socket = nullptr;
 
 /**
  * Точка входа
- * @param argc Кол-во аргументов
- * @param argv Аргументы
- * @return Код выхода
+ * @param hInstance Дескриптор модуля Windows
+ * @param hPrevInstance Не используется (устарело)
+ * @param pCmdLine Аргументы запуска
+ * @param nCmdShow Вид показа окна
+ * @return Код выполнения
  */
-int main(int argc, char* argv[])
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
     // Если QT линкуется статически, нужно статически импортировать плагин
 #ifdef QT_STATIC_BUILD
@@ -23,6 +26,8 @@ int main(int argc, char* argv[])
 #endif
 
     // Инициализация QT
+    int argc = 0;
+    char* argv[] = {{}};
     QApplication app(argc, argv);
 
     // Добавить шрифт из ресурсов

@@ -23,10 +23,10 @@ ChatWindow::ChatWindow(QWidget *parent):QWidget(parent),ui_(new Ui::ChatWindow),
  */
 ChatWindow::~ChatWindow()
 {
+    // Закрыть сокет соединения
     _socket->close();
+    // Удалить UI
     delete ui_;
-    delete spacerUnderMessages_;
-    qDeleteAll(messages_);
 }
 
 /**
@@ -77,8 +77,6 @@ void ChatWindow::on_sendButton_clicked()
     // Отправка длинны сообщения (добавляем единицу для завершающего нуля)
     size_t size = message.size()+1;
     _socket->write(reinterpret_cast<char*>(&size), sizeof(size_t));
-    _socket->waitForBytesWritten(-1);
-
     // Отправка сообщения
     _socket->write(message.c_str(), size);
     _socket->waitForBytesWritten(-1);

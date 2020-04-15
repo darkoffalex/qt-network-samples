@@ -89,18 +89,27 @@ void clientThreadFunction(QTcpSocket* clientSocket)
     bool connected = true;
     while(connected)
     {
-        // Получить длинну сообщения
+        // Размер и буфер
         size_t msgSize = 0;
+        char* msg = nullptr;
+
+        // Получить длинну сообщения
         clientSocket->waitForReadyRead(-1);
         clientSocket->read(reinterpret_cast<char*>(&msgSize),sizeof(size_t));
 
-        // Выделить строчку под сообщение нужной длины и получить сообщение
-        char* msg = new char[msgSize];
-        clientSocket->waitForReadyRead(10);
-        clientSocket->read(msg,msgSize);
-
         // Состояние подключения
         connected = clientSocket->state() == QTcpSocket::ConnectedState;
+
+        // Если подключение установлено
+        if(connected){
+            // Выделить строчку под сообщение нужной длины и получить сообщение
+            msg = new char[msgSize];
+            // Читать из сокета покуда все не считается
+            size_t readTotal = 0;
+            do {
+                readTotal += clientSocket->read(msg, msgSize-readTotal);
+            } while (readTotal < msgSize);
+        }
 
         // После получения сообщения - отправить его всем клиентам кроме текущего
         _socketLstMtx.lock();
@@ -120,11 +129,10 @@ void clientThreadFunction(QTcpSocket* clientSocket)
             }
 
             // Если клиент не тот, что отправил сообщение
-            if(socket != clientSocket) {
+            if(socket != nullptr && socket != clientSocket) {
                 // Отправка длинны сообщения (добавляем единицу для завершающего нуля)
                 size_t size = msgToSend.size()+1;
                 socket->write(reinterpret_cast<char*>(&size), sizeof(size_t));
-                socket->waitForBytesWritten(-1);
                 // Отправка сообщения
                 socket->write(msgToSend.c_str(), size);
                 socket->waitForBytesWritten(-1);
