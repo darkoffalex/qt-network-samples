@@ -49,20 +49,7 @@ endif()
 if(WIN32)
     # Если это не статическая линковка - необходимо скопировать DLL в папку с исполняемым файлом
     if(NOT QT_STATIC_LINK)
-        ADD_CUSTOM_COMMAND(TARGET ${TARGET_NAME} POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy ${QT5_DIR}bin\\Qt5Core$<$<CONFIG:Debug>:d>.dll ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
-                COMMAND ${CMAKE_COMMAND} -E copy ${QT5_DIR}bin\\Qt5Widgets$<$<CONFIG:Debug>:d>.dll ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
-                COMMAND ${CMAKE_COMMAND} -E copy ${QT5_DIR}bin\\Qt5Gui$<$<CONFIG:Debug>:d>.dll ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
-                COMMAND ${CMAKE_COMMAND} -E copy ${QT5_DIR}bin\\Qt5Network$<$<CONFIG:Debug>:d>.dll ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
-                COMMENT "Copying Qt binaries" VERBATIM)
-        # Если это GNU (MinGW) нужны еще runtime-библиотеки
-        if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-            ADD_CUSTOM_COMMAND(TARGET ${TARGET_NAME} POST_BUILD
-                    COMMAND ${CMAKE_COMMAND} -E copy ${QT5_DIR}bin\\libgcc_s_dw2-1.dll ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
-#                    COMMAND ${CMAKE_COMMAND} -E copy ${QT5_DIR}bin\\libstdc++-6.dll ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
-                    COMMAND ${CMAKE_COMMAND} -E copy ${QT5_DIR}bin\\libwinpthread-1.dll ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
-                    COMMENT "Copying MinGW runtime binaries for Qt" VERBATIM)
-        endif()
+        include("../../QtCopySharedLibs.cmake")
     endif()
 else()
     # TODO: дополнительные действия для других ОС
@@ -73,29 +60,7 @@ SET(ADDITIONAL_LIBS "")
 
 # Если QT линкуется статически
 if(QT_STATIC_LINK)
-    if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-        SET(LIB_EXT ".lib")
-    else()
-        SET(LIB_EXT ".a")
-    endif()
-
-    # Основные модули QT
-    SET(ADDITIONAL_LIBS ${ADDITIONAL_LIBS}
-            "${QT5_DIR}/lib/qtpcre2$<$<CONFIG:Debug>:d>${LIB_EXT}"
-            "${QT5_DIR}/lib/qtlibpng$<$<CONFIG:Debug>:d>${LIB_EXT}"
-            "${QT5_DIR}/lib/qtharfbuzz$<$<CONFIG:Debug>:d>${LIB_EXT}"
-            "${QT5_DIR}/lib/qtfreetype$<$<CONFIG:Debug>:d>${LIB_EXT}"
-            "${QT5_DIR}/lib/Qt5FontDatabaseSupport$<$<CONFIG:Debug>:d>${LIB_EXT}"
-            "${QT5_DIR}/lib/Qt5ThemeSupport$<$<CONFIG:Debug>:d>${LIB_EXT}"
-            "${QT5_DIR}/lib/Qt5EventDispatcherSupport$<$<CONFIG:Debug>:d>${LIB_EXT}"
-            "${QT5_DIR}/lib/Qt5AccessibilitySupport$<$<CONFIG:Debug>:d>${LIB_EXT}")
-
-    if(WIN32)
-        # Плагины
-        SET(ADDITIONAL_LIBS ${ADDITIONAL_LIBS} "${QT5_DIR}/plugins/platforms/qwindows$<$<CONFIG:Debug>:d>${LIB_EXT}")
-        # Библиотеки ОС
-        SET(ADDITIONAL_LIBS ${ADDITIONAL_LIBS} "imm32.lib" "version.lib" "netapi32.lib" "uxtheme.lib" "dwmapi.lib" "Ws2_32.lib" "Winmm.lib" "Iphlpapi.lib")
-    endif()
+    include("../../QtAddStaticLibs.cmake")
 endif()
 
 # Линковка приложения и дополнительных библиотек
